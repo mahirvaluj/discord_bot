@@ -4,56 +4,22 @@ import asyncio
 import discord
 import os
 import sys
-
-#wordcloud dependancies
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
-import matplotlib.pyplot as plt
+import random
 
 from datetime import datetime
 from discord.ext import commands
-
 # Note, requires envvar BOT_TOKEN
 
 bot = commands.Bot(command_prefix="::")
 
-@command.event
-async def on_message(message):
-    message_content = message.content
-    with open("log.txt", "a") as f:
-       time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-       f.write(f"<{time_stamp}>{message_content}\n")
-    await bot.process_commands(message)
-
-@command.command()
-async def wordcloud(ctx):
-    print('{} - Command: wordcloud | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
-    
-    #read data from text file
-    text = open('log.txt').read()
-    #clean up
-    if os.path.exists('word_cloud.png'):
-        os.remove('word_cloud.png')
-    #generate wordcloud
-    wordcloud = WordCloud(max_font_size=50, max_words=500, background_color="white").generate(text)
-    plt.figure()
-    plt.imshow(wordcloud, interpolation="bilinear")
-    plt.axis("off")
-    #save wordcloud as an image
-    wordcloud.to_file('word_cloud.png')
-    #instantiate discord File object
-    file = discord.File('word_cloud.png')
-    #attach file to discord reply
-    await ctx.channel.send(file=file)
-    #clean up
-    if os.path.exists('word_cloud.png'):
-        os.remove('word_cloud.png')
-        
-    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-
 @commands.command()
 async def ping(ctx):
     await ctx.send('pang')
-
+    
+@command.command()
+async def flip(ctx):
+    options=['Heads','Tails']
+    await ctx.send('You rolled ' + options[random.randint(0,1)])
 
 @commands.command()
 async def yank(ctx, *args):
@@ -61,10 +27,10 @@ async def yank(ctx, *args):
     for i in ctx.author.roles:
         if i.permissions.administrator:
             allowed = True
-
+        
     if not allowed:
         await ctx.send("You're not allowed to use this command!")
-    return
+        return
 
     if len(args) != 2:
         await ctx.send(\
@@ -98,9 +64,6 @@ async def yank(ctx, *args):
     await ctx.send(f'Starting yanking channel {ctx.channel}\n' \
                    f'Outputting to `{filepath}`')
 
-    if not os.path.isdir("./yanks"):
-        os.mkdir("./yanks")
-
     with open(filepath, "w+") as wf:
         async for msg in ctx.history(limit=msg_limit, oldest_first=oldest_first):
             if mode == 'full':
@@ -116,6 +79,7 @@ def main():
 
     bot.add_command(ping)
     bot.add_command(yank)
+    bot.add_command(flip)
     bot.run(os.environ['BOT_TOKEN'])
 
 if __name__ == "__main__":
