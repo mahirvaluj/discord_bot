@@ -16,6 +16,15 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix="::")
 
+# This stores the current nicknames used by force_nick
+nickname_dir = {}
+
+
+def is_admin(user):
+    """
+    Checks whether user is an administrator on the guild 
+    """
+    return user.guild_permissions.administrator
 
 @bot.event
 async def on_message(message):
@@ -29,6 +38,76 @@ async def on_message(message):
        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
        f.write(f"<{time_stamp}>{message_content}\n")
     await bot.process_commands(message)
+
+
+@commands.command()
+async def force_nick(ctx, *args):
+    """
+    Force nickname on user -- set nickname, and then periodically monitors 
+    user for changes, and set back when it happens
+    """
+    print('{} - Command: force_nick | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+
+    if not is_admin(ctx.author):
+        await ctx.send("You're not allowed to use this command!")
+        print("Not allowed.")
+        return
+
+    if len(args) != 2:
+        await ctx.send("Invalid number of args.\n\n"\
+                       "Usage:\n\t`::force_nick user nick`")
+        return
+
+    if len(ctx.message.mentions) != 1:
+        await ctx.send("Invalid mention.\n"\
+                       "Usage:\n\t`::force_nick user nick`")
+        return
+
+    user = ctx.message.mentions[0]
+
+    nickname_dir[user.id] = args[1]
+    
+    # Make a closure which will check the user's nick for us
+    def mk_nick_check(user, nickname):
+        async def nick_check():
+            while user.id in nickname_dir:
+                if user.nick != nickname:
+                    await user.edit(nick=nickname)
+                await asyncio.sleep(10)
+        return nick_check
+
+    chk = mk_nick_check(ctx.message.mentions[0], args[1])
+
+    loop = asyncio.get_event_loop()
+
+    loop.create_task(chk())
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    
+
+@commands.command()
+async def reset_nick(ctx, *args):
+    """
+    Reset forced nickname on user
+    """
+    print('{} - Command: reset_nick | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    if not is_admin(ctx.author):
+        await ctx.send("You're not allowed to use this command!")
+        print("Not allowed.")
+        return
+        
+    if len(args) != 1:
+        await ctx.send("Invalid # of arguments.\n"\
+                       "Usage:\n\t`::reset_nick user`")
+        return
+
+    if len(ctx.message.mentions) != 1:
+        await ctx.send("invalid mention.\n"\
+                       "Usage:\n\t`::reset_nick user`")
+        return
+
+    del nickname_dir[ctx.message.mentions[0].id]
+    await ctx.message.mentions[0].edit(nick=None)
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
 @commands.command()
@@ -74,14 +153,11 @@ async def yank(ctx, *args):
     File will be in folder 'yanks'
     """
     print('{} - Command: yank | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
-    allowed = False
-    for i in ctx.author.roles:
-        if i.permissions.administrator:
-            allowed = True
 
-    if not allowed:
+    if not is_admin(ctx.author):
         await ctx.send("You're not allowed to use this command!")
-    return
+        print("Not allowed")
+        return
 
     if len(args) != 2:
         await ctx.send(\
@@ -136,6 +212,8 @@ def main():
     bot.add_command(ping)
     bot.add_command(yank)
     bot.add_command(wordcloud)
+    bot.add_command(force_nick)
+    bot.add_command(reset_nick)
     bot.run(os.environ['BOT_TOKEN'])
 
 
