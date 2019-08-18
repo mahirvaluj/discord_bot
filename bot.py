@@ -226,6 +226,7 @@ def main():
     bot.add_command(wordcloud)
     bot.add_command(force_nick)
     bot.add_command(reset_nick)
+    bot.add_command(eat_my_ass)
     bot.run(os.environ['BOT_TOKEN'])
 
 
