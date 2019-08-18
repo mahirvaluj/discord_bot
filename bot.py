@@ -44,12 +44,15 @@ async def on_message(message):
 
 
 @commands.command()
-async def eat_my_ass(ctx):
+async def eat_my_ass(ctx, *args):
     """
     Insult user who calls this function
     """
     print('{} - Command: eat_my_ass | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
-    await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].lower()}, {ctx.author.mention}.")
+    if len(ctx.message.mentions) == 1:
+        await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].lower()}, {ctx.message.mentions[0].mention}.")
+    else:
+        await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].lower()}, {ctx.author.mention}.")
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
