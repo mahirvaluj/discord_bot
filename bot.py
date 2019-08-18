@@ -98,6 +98,9 @@ async def yank(ctx, *args):
     await ctx.send(f'Starting yanking channel {ctx.channel}\n' \
                    f'Outputting to `{filepath}`')
 
+    if not os.path.isdir("./yanks"):
+        os.mkdir("./yanks")
+
     with open(filepath, "w+") as wf:
         async for msg in ctx.history(limit=msg_limit, oldest_first=oldest_first):
             if mode == 'full':
