@@ -66,8 +66,6 @@ async def yank(ctx, *args):
         await ctx.send("You're not allowed to use this command!")
     return
 
-
-
     if len(args) != 2:
         await ctx.send(\
             'Invalid number of arguments -- must specify mode and limit\n'\
