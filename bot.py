@@ -19,6 +19,11 @@ bot = commands.Bot(command_prefix="::")
 
 @bot.event
 async def on_message(message):
+    """
+    Fill up 'log.txt' with messages as they are sent in channels with bot
+    TODO: - Add separate log.txts for separate channels:w
+          - Clear log files as they get too large
+    """
     message_content = message.content
     with open("log.txt", "a") as f:
        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -28,6 +33,10 @@ async def on_message(message):
 
 @commands.command()
 async def wordcloud(ctx):
+    """
+    create wordcloud from all words in log.txt
+    TODO: - Individual wordclouds per channel
+    """
     print('{} - Command: wordcloud | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
     
     #read data from text file
@@ -60,6 +69,10 @@ async def ping(ctx):
 
 @commands.command()
 async def yank(ctx, *args):
+    """
+    Yank messsages from a certain channel and output them to a text file
+    File will be in folder 'yanks'
+    """
     print('{} - Command: yank | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
     allowed = False
     for i in ctx.author.roles:
