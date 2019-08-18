@@ -2,6 +2,7 @@
 
 import asyncio
 import discord
+import insults
 import os
 import sys
 
@@ -11,6 +12,7 @@ import matplotlib.pyplot as plt
 
 from datetime import datetime
 from discord.ext import commands
+
 
 # Note, requires envvar BOT_TOKEN
 
@@ -38,6 +40,16 @@ async def on_message(message):
        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
        f.write(f"<{time_stamp}>{message_content}\n")
     await bot.process_commands(message)
+
+
+@commands.command()
+async def eat_my_ass(ctx):
+    """
+    Insult user who calls this function
+    """
+    print('{} - Command: eat_my_ass | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults) - 1)].tolower()}, {ctx.author.mention}.")
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
 @commands.command()
