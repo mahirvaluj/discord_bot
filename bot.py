@@ -5,7 +5,7 @@ import discord
 import os
 import sys
 
-#wordcloud dependancies
+#wordcloud dependencies
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 
@@ -16,7 +16,7 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix="::")
 
-@command.event
+@bot.event
 async def on_message(message):
     message_content = message.content
     with open("log.txt", "a") as f:
@@ -24,7 +24,7 @@ async def on_message(message):
        f.write(f"<{time_stamp}>{message_content}\n")
     await bot.process_commands(message)
 
-@command.command()
+@commands.command()
 async def wordcloud(ctx):
     print('{} - Command: wordcloud | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
     
@@ -57,6 +57,7 @@ async def ping(ctx):
 
 @commands.command()
 async def yank(ctx, *args):
+    print('{} - Command: yank | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
     allowed = False
     for i in ctx.author.roles:
         if i.permissions.administrator:
@@ -108,6 +109,8 @@ async def yank(ctx, *args):
             elif mode == 'text':
                 wf.write(f'{repr(msg.content)}\n\n')
 
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
 
 def main():
     if 'BOT_TOKEN' not in os.environ:
@@ -116,6 +119,7 @@ def main():
 
     bot.add_command(ping)
     bot.add_command(yank)
+    bot.add_command(wordcloud)
     bot.run(os.environ['BOT_TOKEN'])
 
 if __name__ == "__main__":
