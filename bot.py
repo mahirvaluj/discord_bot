@@ -16,6 +16,7 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix="::")
 
+
 @bot.event
 async def on_message(message):
     message_content = message.content
@@ -23,6 +24,7 @@ async def on_message(message):
        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
        f.write(f"<{time_stamp}>{message_content}\n")
     await bot.process_commands(message)
+
 
 @commands.command()
 async def wordcloud(ctx):
@@ -49,6 +51,7 @@ async def wordcloud(ctx):
         os.remove('word_cloud.png')
         
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
 
 @commands.command()
 async def ping(ctx):
@@ -121,6 +124,7 @@ def main():
     bot.add_command(yank)
     bot.add_command(wordcloud)
     bot.run(os.environ['BOT_TOKEN'])
+
 
 if __name__ == "__main__":
     main()
