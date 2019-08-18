@@ -49,7 +49,7 @@ async def eat_my_ass(ctx):
     Insult user who calls this function
     """
     print('{} - Command: eat_my_ass | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
-    await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].tolower()}, {ctx.author.mention}.")
+    await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].lower()}, {ctx.author.mention}.")
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
