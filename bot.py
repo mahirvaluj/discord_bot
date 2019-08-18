@@ -3,6 +3,7 @@
 import asyncio
 import discord
 import insults
+import random
 import os
 import sys
 
