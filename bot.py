@@ -18,6 +18,15 @@ async def ping(ctx):
 
 @commands.command()
 async def yank(ctx, *args):
+    allowed = False
+    for i in ctx.author.roles:
+        if i.permissions.administrator:
+            allowed = True
+        
+    if not allowed:
+        await ctx.send("You're not allowed to use this command!")
+        return
+
     if len(args) != 2:
         await ctx.send(\
             'Invalid number of arguments -- must specify mode and limit\n'\
