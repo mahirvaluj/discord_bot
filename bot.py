@@ -6,6 +6,7 @@ import insults
 import random
 import os
 import sys
+import re
 
 #wordcloud dependencies
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
@@ -18,6 +19,7 @@ from discord.ext import commands
 # Note, requires envvar BOT_TOKEN
 
 bot = commands.Bot(command_prefix="::")
+
 
 # This stores the current nicknames used by force_nick
 nickname_dir = {}
@@ -158,8 +160,92 @@ async def wordcloud(ctx):
 
 
 @commands.command()
+async def emojify(ctx, *, content:str):
+   """
+   Emojify the input
+   """
+   print('{} - Command: emoji | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+   normalText=list(content.lower())
+   emojiText = []
+
+   for i in normalText:
+        if i == '0': 
+            emojiText.append(':zero:')
+        elif i == '1': 
+            emojiText.append(':one:')
+        elif i == '2': 
+            emojiText.append(':two:')
+        elif i == '3': 
+            emojiText.append(':three:')
+        elif i == '4': 
+            emojiText.append(':four:')
+        elif i == '5': 
+            emojiText.append(':five:')
+        elif i == '6': 
+            emojiText.append(':six:')
+        elif i == '7': 
+            emojiText.append(':seven:')
+        elif i == '8': 
+            emojiText.append(':eight:')
+        elif i == '9': 
+            emojiText.append(':nine:')
+        elif i == 'b':
+            emojiText.append(':b:')
+        elif i == ' ':
+            emojiText.append(' ')
+        elif re.search("[a-z]", i):
+            emojiText.append(':regional_indicator_{}:'.format(i))
+        else:
+            emojiText.append(i)
+
+   fullStr = ' '.join(emojiText)
+   await ctx.send(fullStr)
+   print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
+
+@commands.command()
 async def ping(ctx):
     await ctx.send('pang')
+
+
+@commands.command()
+async def echo(ctx, *, content:str):
+    """
+    Echoes a message, single echo use:
+    ::echo 'string to echo here'
+    multiple echo use:
+    ::echo int:'string to echo here'
+    where int is a positive integer
+    """
+
+    print('{} - Command: echo | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    input = content.split(':')
+    
+    if len(input) > 1:
+        index = 0
+        n = int(input[0])
+        content = input[1]
+        while index < n:
+            await ctx.send(content)
+            index += 1
+    else:
+        await ctx.send(input[0])
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
+
+@commands.command()
+async def coinflip(ctx):
+    """
+    Flip a coin
+    """
+    options=['Heads','Tails']
+    await ctx.send('You rolled ' + options[random.randint(0,1)])
+
+
+@commands.command()
+async def flip(ctx):
+    options=['Heads','Tails']
+    await ctx.send('You rolled ' + options[random.randint(0,1)])
 
 
 @commands.command()
@@ -226,6 +312,9 @@ def main():
         sys.exit(1)
 
     bot.add_command(ping)
+    bot.add_command(echo)
+    bot.add_command(coinflip)
+    bot.add_command(emojify)
     bot.add_command(yank)
     bot.add_command(wordcloud)
     bot.add_command(force_nick)
