@@ -6,6 +6,7 @@ import insults
 import random
 import os
 import sys
+import re
 
 #wordcloud dependencies
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
