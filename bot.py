@@ -242,7 +242,6 @@ async def coinflip(ctx):
     await ctx.send('You rolled ' + options[random.randint(0,1)])
 
 
-@commands.command()
 async def yank(ctx, *args):
     """
     Yank messsages from a certain channel and output them to a text file
@@ -319,3 +318,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
