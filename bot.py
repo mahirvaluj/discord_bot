@@ -209,27 +209,19 @@ async def ping(ctx):
 
 
 @commands.command()
-async def echo(ctx, *, content:str):
+async def echo(ctx, n:int, *, content:str):
     """
-    Echoes a message, single echo use:
-    ::echo 'string to echo here'
-    multiple echo use:
-    ::echo int:'string to echo here'
-    where int is a positive integer
+    Echoes a message, !echo [amount of times to echo] [message here]
     """
-
     print('{} - Command: echo | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
-    input = content.split(':')
-    
-    if len(input) > 1:
-        index = 0
-        n = int(input[0])
-        content = input[1]
-        while index < n:
+    index = 0
+    limit = 15
+    if n > 0:
+        while index < min(n,limit):
             await ctx.send(content)
             index += 1
     else:
-        await ctx.send(input[0])
+        await ctx.send(content)
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
