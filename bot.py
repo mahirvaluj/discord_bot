@@ -9,7 +9,7 @@ import sys
 import re
 
 #google image search dependancy
-import google_images_download
+from google_images_download import google_images_download
 
 #wordcloud dependencies
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
