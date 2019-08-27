@@ -26,6 +26,7 @@ bot = commands.Bot(command_prefix="::")
 
 # This stores the current nicknames used by force_nick
 nickname_dir = {}
+muted_l = []
 
 
 def is_admin(user):
@@ -34,6 +35,7 @@ def is_admin(user):
     """
     return user.guild_permissions.administrator
 
+
 @bot.event
 async def on_message(message):
     """
@@ -41,11 +43,75 @@ async def on_message(message):
     TODO: - Add separate log.txts for separate channels:w
           - Clear log files as they get too large
     """
+    global muted_l
+
     message_content = message.content
+    for i in muted_l:
+        if i in message_content.lower():
+            await message.delete()
     with open("log.txt", "a") as f:
        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
        f.write(f"<{time_stamp}>{message_content}\n")
     await bot.process_commands(message)
+
+
+@commands.command()
+async def mute_where(ctx, text):
+    """
+    adds text to "muted_l"
+    text in muted_l will be deleted when sent. 
+    """
+    print('{} - Command: mute_where | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    global muted_l
+
+    if not is_admin(ctx.author):
+        await ctx.send("You're not allowed to use this command!")
+        print("Not allowed.")
+        return
+
+    muted_l.append(text)
+
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
+
+@commands.command()
+async def unmute_where(ctx, text):
+    """
+    removes text to "muted_l"
+    text in muted_l will be deleted when sent. 
+    """
+    print('{} - Command: unmute_where | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    global muted_l
+
+    if not is_admin(ctx.author):
+        await ctx.send("You're not allowed to use this command!")
+        print("Not allowed.")
+        return
+
+    for i, t in enumerate(muted_l):
+        if t == text:
+            muted_l = muted_l[:i] + muted_l[i+1:]
+
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    
+
+@commands.command()
+async def mute_status(ctx):
+    """
+    sends status of muted text
+    NOTE: THIS IS BUSTED ATM
+    """
+    print('{} - Command: mute_status | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    global muted_l
+
+    if not is_admin(ctx.author):
+        await ctx.send("You're not allowed to use this command!")
+        print("Not allowed.")
+        return
+
+    await ctx.send(repr(muted_l))
+
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
 @commands.command()
@@ -320,6 +386,9 @@ def main():
 
     bot.add_command(ping)
     bot.add_command(echo)
+    bot.add_command(mute_where)
+    bot.add_command(unmute_where)
+    bot.add_command(mute_status)
     bot.add_command(google)
     bot.add_command(coinflip)
     bot.add_command(emojify)
