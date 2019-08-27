@@ -8,6 +8,9 @@ import os
 import sys
 import re
 
+#google image search dependancy
+from google_images_download import google_images_download
+
 #wordcloud dependencies
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
@@ -55,6 +58,24 @@ async def eat_my_ass(ctx, *args):
         await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].lower()}, {ctx.message.mentions[0].mention}.")
     else:
         await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].lower()}, {ctx.author.mention}.")
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
+
+@commands.command()
+async def google(ctx, *, keywords:str):
+    """
+    Finds a random google image with a given keyword
+    """
+    print('{} - Command: google | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    response = google_images_download.googleimagesdownload()   #class instantiation
+
+    arguments = {"keywords":keywords,"limit":5,"print_urls":False, "format":"jpg", "safe_search":True}   #creating list of arguments
+    paths = response.download(arguments)   #passing the arguments to the function
+    my_files = [
+    discord.File(paths[0][keywords][random.randint(0,4)]),
+    ]
+
+    await ctx.send(files=my_files)
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
@@ -299,6 +320,7 @@ def main():
 
     bot.add_command(ping)
     bot.add_command(echo)
+    bot.add_command(google)
     bot.add_command(coinflip)
     bot.add_command(emojify)
     bot.add_command(yank)
@@ -311,4 +333,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
