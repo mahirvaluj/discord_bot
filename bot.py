@@ -47,12 +47,30 @@ async def on_message(message):
 
     message_content = message.content
     for i in muted_l:
-        if i in message_content.lower():
+        if re.match(i[0], message_content):
             await message.delete()
     with open("log.txt", "a") as f:
        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
        f.write(f"<{time_stamp}>{message_content}\n")
     await bot.process_commands(message)
+
+
+@commands.command()
+async def unmute_all(ctx):
+    """
+    removes all values from mute list
+    """
+    print('{} - Command: unmute_all | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+
+    if not is_admin(ctx.author):
+        await ctx.send("You're not allowed to use this command!")
+        print("Not allowed.")
+        return
+
+    global muted_l
+    muted_l = []
+
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
 @commands.command()
@@ -69,7 +87,13 @@ async def mute_where(ctx, text):
         print("Not allowed.")
         return
 
-    muted_l.append(text)
+    try:
+        muted_re = re.compile(text, re.I)
+        muted_l.append((muted_re, text))
+    except:
+        await ctx.send(f"```{text}``` is not valid regex.")
+        print("Invalid regex")
+        return
 
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
@@ -89,7 +113,7 @@ async def unmute_where(ctx, text):
         return
 
     for i, t in enumerate(muted_l):
-        if t == text:
+        if t[1] == text:
             muted_l = muted_l[:i] + muted_l[i+1:]
 
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
@@ -388,6 +412,7 @@ def main():
     bot.add_command(echo)
     bot.add_command(mute_where)
     bot.add_command(unmute_where)
+    bot.add_command(unmute_all)
     bot.add_command(mute_status)
     bot.add_command(google)
     bot.add_command(coinflip)
