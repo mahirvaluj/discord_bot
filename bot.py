@@ -2,7 +2,6 @@
 
 import asyncio
 import discord
-import insults
 import random
 import os
 import sys
@@ -135,19 +134,6 @@ async def mute_status(ctx):
 
     await ctx.send(repr(muted_l))
 
-    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-
-
-@commands.command()
-async def eat_my_ass(ctx, *args):
-    """
-    Insult user who calls this function
-    """
-    print('{} - Command: eat_my_ass | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
-    if len(ctx.message.mentions) == 1:
-        await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].lower()}, {ctx.message.mentions[0].mention}.")
-    else:
-        await ctx.send(f"You fucking {insults.insults[random.randint(0, len(insults.insults) - 1)].lower()}, {ctx.author.mention}.")
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
@@ -421,7 +407,6 @@ def main():
     bot.add_command(wordcloud)
     bot.add_command(force_nick)
     bot.add_command(reset_nick)
-    bot.add_command(eat_my_ass)
     bot.run(os.environ['BOT_TOKEN'])
 
 
