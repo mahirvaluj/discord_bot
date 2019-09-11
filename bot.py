@@ -232,30 +232,29 @@ async def wordcloud(ctx):
     TODO: - Individual wordclouds per channel
     """
     print('{} - Command: wordcloud | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    cache_size = len(bot.cached_messages)
+    print(f'cache size: {cache_size}')
     
-    #read data from text file
-    text = open('log.txt').read()
-    #clean up
-    if os.path.exists('word_cloud.png'):
-        os.remove('word_cloud.png')
-    #generate wordcloud
+    messages = []
+    for message in bot.cached_messages: # returns a discord.Message object
+            messages.append(message.content)
+
+    text = ' '.join(messages)
     wordcloud = WordCloud(max_font_size=50, max_words=500, background_color="white").generate(text)
     plt.figure()
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
-    #save wordcloud as an image
     wordcloud.to_file('word_cloud.png')
-    #instantiate discord File object
+
     file = discord.File('word_cloud.png')
-    #attach file to discord reply
     await ctx.channel.send(file=file)
-    #clean up
+   
     if os.path.exists('word_cloud.png'):
-        os.remove('word_cloud.png')
-        
+    os.remove('word_cloud.png')
+
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
-
+    
 @commands.command()
 async def emojify(ctx, *, content:str):
    """
