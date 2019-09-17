@@ -111,9 +111,10 @@ async def status_loop():
 @tasks.loop(seconds=10)
 async def muted_list_export():
     with open('muted.txt', 'w') as f:
-        json.dump(muted, f)
+        json_data = json.dumps(muted)
+        f.write(json_data)
 
-
+        
 @tasks.loop(seconds=10)
 async def auto_unmute():
     with open('muted.txt') as f:
