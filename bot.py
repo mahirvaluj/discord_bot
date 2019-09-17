@@ -114,11 +114,11 @@ async def muted_list_export():
         json_data = json.dumps(muted)
         f.write(json_data)
 
-        
+
 @tasks.loop(seconds=10)
 async def auto_unmute():
-    with open('muted.txt') as f:
-        muted = json.load(f)
+    #with open('muted.txt') as f:
+        #muted = json.load(f)
 
     for member in muted:
         if time.time() - muted[member] >= 900:
