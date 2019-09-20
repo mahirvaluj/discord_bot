@@ -51,6 +51,15 @@ async def on_ready():
     print('{}#{} is online'.format(bot.user.name, bot.user.discriminator))
     print('discord.py version: {}'.format(discord.__version__))
 
+    
+@bot.event
+async def on_member_join(member):
+    if member in muted:
+        role = discord.utils.get(member.guild.roles, name='muted by the people')
+        await  member.add_roles(role)
+    else:
+        pass
+
 
 @bot.event
 async def on_message(message):
@@ -68,6 +77,10 @@ async def on_message(message):
     
     message_content = message.content
     author = message.author
+   
+    if author == bot.user:
+        return
+    
     if vote:
         if (message_content == 'yes') and not(author in voters):
             votes['yes'] = votes['yes'] + 1
@@ -128,14 +141,14 @@ async def auto_unmute():
             del muted[member]
 
 
-@commands.command()
+@bot.command()
 async def votemute(ctx, member:discord.Member=None):
     print('{} - Command: votemute | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
     global vote
     global votes
     global voters
     global muted
-
+    guild = ctx.guild
     if vote or u_vote:
         await ctx.send('a vote is already in progress, please wait')
         return
@@ -164,7 +177,8 @@ async def votemute(ctx, member:discord.Member=None):
         await  member.add_roles(role)
         muted[member] = time.time()
         print(f'{member} has been muted for 15 minutes')
-
+        for invite in await guild.invites():
+            await bot.delete_invite(invite)
     if no_votes >= yes_votes:
         await ctx.send('the majority voted no, user will not be muted') 
 
@@ -174,7 +188,7 @@ async def votemute(ctx, member:discord.Member=None):
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
-@commands.command()
+@bot.command()
 async def voteunmute(ctx, member:discord.Member=None):
     print('{} - Command: votemute | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
     global u_vote
