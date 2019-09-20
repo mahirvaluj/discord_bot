@@ -15,7 +15,7 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 
 from datetime import datetime
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 
 # Note, requires envvar BOT_TOKEN
