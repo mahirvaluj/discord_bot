@@ -178,7 +178,10 @@ async def votemute(ctx, member:discord.Member=None):
         muted[member] = time.time()
         print(f'{member} has been muted for 15 minutes')
         for invite in await guild.invites():
-            await bot.delete_invite(invite)
+            if invite.inviter == member:
+                await invite.delete()
+            else:
+                pass
     if no_votes >= yes_votes:
         await ctx.send('the majority voted no, user will not be muted') 
 
