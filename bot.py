@@ -7,6 +7,7 @@ import os
 import sys
 import re
 import json
+import time
 
 #google image search dependancy
 from google_images_download import google_images_download
