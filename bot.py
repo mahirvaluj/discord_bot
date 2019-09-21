@@ -6,6 +6,8 @@ import random
 import os
 import sys
 import re
+import json
+import time
 
 #google image search dependancy
 from google_images_download import google_images_download
@@ -15,7 +17,7 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 
 from datetime import datetime
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 
 # Note, requires envvar BOT_TOKEN
