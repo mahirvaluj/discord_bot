@@ -1,27 +1,22 @@
 #!/usr/bin/env python3
 
-import asyncio
+import asyncio, random, os, sys, re, json, time
+
 import discord
-import random
-import os
-import sys
-import re
-import json
-import time
+
+from datetime import datetime
+from discord.ext import commands, tasks
 
 #google image search dependancy
 from google_images_download import google_images_download
 
 #wordcloud dependencies
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
-from datetime import datetime
-from discord.ext import commands, tasks
 
 
 # Note, requires envvar BOT_TOKEN
-
 bot = commands.Bot(command_prefix="::")
 
 
@@ -30,11 +25,36 @@ nickname_dir = {}
 muted_l = []
 
 
+# These variables store voting information
+vote = False # votemute active or not
+votes = {'yes':0, 'no':0} # vote tally
+voters = [] # list of voters
+muted = {} # list of muted people
+u_vote = False # voteunmute active or not
+u_votes = {'yes':0, 'no':0} # vote tally
+u_voters = [] # list of voters
+
+
 def is_admin(user):
     """
     Checks whether user is an administrator on the guild 
     """
     return user.guild_permissions.administrator
+
+
+@bot.event
+async def on_ready(): # runs upon bot being initialized
+    auto_unmute.start() # start auto_unmute loop
+    muted_list_export.start() # start muted_list_export loop
+
+
+@bot.event
+async def on_member_join(member): # runs when a new member joins the server
+    if member in muted: # checks if member is in the muted list
+        role = discord.utils.get(member.guild.roles, name='muted by the people') # gets the role name
+        await  member.add_roles(role) # assigns the role
+    else:
+        pass # TO-DO: add a default 'member' role to all users upon joining
 
 
 @bot.event
@@ -46,6 +66,41 @@ async def on_message(message):
     """
     global muted_l
 
+    global votes
+    global voters
+    global u_votes
+    global u_voters
+
+    message_content = message.content # store message content in a variable
+    author = message.author # grab the author name from the message
+    if author == bot.user: # make sure the message was not sent by the bot
+        return
+
+    if vote: # check if votemute is active
+        if (message_content == 'yes') and not(author in voters): # check if someone typed 'yes'
+            votes['yes'] = votes['yes'] + 1 # add 1 to votes counter
+            voters.append(author) # add author to voters list
+            print(f'{author} voted yes')
+
+        elif (message_content == 'no') and not(author in voters): # check if someone typed 'no'
+            votes['no'] = votes['no'] + 1 # add 1 to the no counter
+            voters.append(author) # add author to voters list
+            print(f'{author} voted no')
+
+    elif u_vote: # check if voteunmute is active
+        if (message_content == 'yes') and not(author in u_voters):
+            u_votes['yes'] = u_votes['yes'] + 1
+            u_voters.append(author)
+            print(f'{author} voted yes')
+
+        elif (message_content == 'no') and not(author in u_voters):
+            u_votes['no'] = u_votes['no'] + 1
+            u_voters.append(author)
+            print(f'{author} voted no')
+
+    else:
+        pass # TO-DO:To be decided
+
     message_content = message.content
     for i in muted_l:
         if re.match(i[0], message_content):
@@ -54,6 +109,130 @@ async def on_message(message):
        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
        f.write(f"<{time_stamp}>{message_content}\n")
     await bot.process_commands(message)
+
+
+@tasks.loop(seconds=10) # TO-DO
+async def muted_list_export(): # exports the list of muted users every 10 seconds
+    muted_json = json.dumps(muted) # this function needs work, is not finished yet.
+    dir = 'muted.json'
+    with open(dir, 'w+') as f:
+        json.dump(muted_json, f)
+
+
+@tasks.loop(seconds=10) # TO-DO
+async def muted_list_import(): # imports the list of muted users every 10 seconds
+    #global
+    #dir = 'muted.json'
+    #with open(dir, 'w+') as f:
+        #muted = json.load(f)
+    pass
+
+
+@tasks.loop(seconds=10) # TO-DO
+async def auto_unmute(): # auto unmutes people and updates the muted 
+    for member in muted:
+        if time.time() - muted[member] >= 900:
+            role = discord.utils.get(member.guild.roles, name='muted by the people')
+            await  member.remove_roles(role)
+            print(f'auto_unmuted: unmuted {member}')
+            del muted[member]
+
+
+@commands.command()
+async def votemute(ctx, member:discord.Member=None):
+    print('{} - Command: votemute | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+    
+    global vote
+    global votes
+    global voters
+    global muted
+
+    guild = ctx.guild # get guild(server) information
+    if vote or u_vote: # make sure only 1 voting session is active at a time
+        await ctx.send('a vote is already in progress, please wait')
+        return
+        
+    vote = True 
+
+    await ctx.send(f'vote to mute started by {ctx.message.author}')
+    await ctx.send('reply with [yes] or [no] to vote')
+
+    await ctx.send('waiting 60 seconds for votes')
+    await asyncio.sleep(30)
+    
+    await ctx.send('waiting 30 seconds for votes')
+    await asyncio.sleep(20)
+
+    await ctx.send('waiting 10 seconds for votes')
+    await asyncio.sleep(10)
+
+    yes_votes = votes['yes'] # get amount of yes votes
+    no_votes = votes['no'] # get amount of no votes
+
+    if yes_votes > no_votes: # compare results
+        await ctx.send('the majority has voted yes, user will be muted for 15 minutes')
+        
+        role = discord.utils.get(member.guild.roles, name='muted by the people') # get the muted role
+        await  member.add_roles(role) # assign the muted role
+        muted[member] = time.time() # add member to the muted list with a time stamp
+        print(f'{member} has been muted for 15 minutes')
+        for invite in await guild.invites(): # remove muted users invites
+            if invite.inviter == member:
+                await invite.delete()
+            else:
+                pass
+    if no_votes >= yes_votes:
+        await ctx.send('the majority voted no, user will not be muted') 
+
+    vote = False
+    votes = {'yes':0, 'no':0}
+   
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
+
+@commands.command()
+async def voteunmute(ctx, member:discord.Member=None):
+    print('{} - Command: voteunmute | Author: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),ctx.author))
+
+    global u_vote
+    global u_votes
+    global u_voters
+
+    if vote or u_vote:
+        await ctx.send('a vote is already in progress, please wait')
+        return
+
+    u_vote = True
+
+    await ctx.send(f'vote to mute started by {ctx.message.author}')
+    await ctx.send('reply with [yes] or [no] to vote')
+
+    await ctx.send('waiting 60 seconds for votes')
+    await asyncio.sleep(30)
+    
+    await ctx.send('waiting 30 seconds for votes')
+    await asyncio.sleep(20)
+
+    await ctx.send('waiting 10 seconds for votes')
+    await asyncio.sleep(10)
+
+    yes_votes = u_votes['yes']
+    no_votes = u_votes['no']
+
+    if yes_votes > no_votes:
+        await ctx.send('the majority has voted yes, user will be unmuted')
+        role = discord.utils.get(member.guild.roles, name='muted by the people')
+        await  member.remove_roles(role)
+        
+    print(f'{member} has been unmuted')
+
+    if no_votes >= yes_votes:
+        await ctx.send('the majority voted no, user will not be unmuted') 
+
+    u_vote = False
+    u_votes = {'yes':0, 'no':0}
+       
+    print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 
 @commands.command()
@@ -408,6 +587,8 @@ def main():
     bot.add_command(wordcloud)
     bot.add_command(force_nick)
     bot.add_command(reset_nick)
+    bot.add_command(votemute)
+    bot.add_command(voteunmute)
     bot.run(os.environ['BOT_TOKEN'])
 
 
