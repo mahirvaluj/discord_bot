@@ -250,7 +250,7 @@ async def wordcloud(ctx):
     await ctx.channel.send(file=file)
    
     if os.path.exists('word_cloud.png'):
-    os.remove('word_cloud.png')
+        os.remove('word_cloud.png')
 
     print('{} - Task Finished Succesfully'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
