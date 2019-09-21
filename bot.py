@@ -6,6 +6,7 @@ import random
 import os
 import sys
 import re
+import json
 
 #google image search dependancy
 from google_images_download import google_images_download
