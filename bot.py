@@ -204,7 +204,7 @@ async def voteunmute(ctx, member:discord.Member=None):
 
     u_vote = True
 
-    await ctx.send(f'vote to mute started by {ctx.message.author}')
+    await ctx.send(f'vote to unmute started by {ctx.message.author}')
     await ctx.send('reply with [yes] or [no] to vote')
 
     await ctx.send('waiting 60 seconds for votes')
