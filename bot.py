@@ -421,7 +421,7 @@ async def wordcloud(ctx):
             messages.append(message.content)
 
     text = ' '.join(messages)
-    wordcloud = WordCloud(max_font_size=50, max_words=500, background_color="white").generate(text)
+    wordcloud = WordCloud(max_font_size=50, max_words=1000, background_color="white").generate(text)
     plt.figure()
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
