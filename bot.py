@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 
 import asyncio, random, os, sys, re, json, time
 
@@ -575,7 +575,7 @@ def main():
         sys.exit(1)
 
     bot.add_command(ping)
-    bot.add_command(echo)
+    # bot.add_command(echo)
     bot.add_command(mute_where)
     bot.add_command(unmute_where)
     bot.add_command(unmute_all)
