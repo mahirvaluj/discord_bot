@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
 
-
 # Note, requires envvar BOT_TOKEN
 bot = commands.Bot(command_prefix="::")
 
@@ -44,6 +43,7 @@ def is_admin(user):
 
 @bot.event
 async def on_ready(): # runs upon bot being initialized
+    print("ready!")
     auto_unmute.start() # start auto_unmute loop
     muted_list_export.start() # start muted_list_export loop
 
@@ -56,6 +56,27 @@ async def on_member_join(member): # runs when a new member joins the server
     else:
         pass # TO-DO: add a default 'member' role to all users upon joining
 
+async def make_new_free_food(guild):
+    print("making new free food")
+    misc_cat = list(filter(lambda x: x.name.find('misc') != -1, guild.categories))[0]
+    await guild.create_text_channel('free-food', category=misc_cat)
+
+@bot.event
+async def on_guild_channel_delete(channel):
+    print("DELETED")
+    print(channel.name)
+    if channel.guild.id == 451168260378066946:
+        if channel.name.find('free-food') != -1:
+            await make_new_free_food(channel.guild)
+        
+    #if before.guild.id == '451168260378066946':
+    #    verify_free_food(before, after)
+
+@bot.event
+async def on_guild_channel_update(before, after):
+    if before.guild.id == 451168260378066946:
+        if before.name.find('free-food') != -1 and after.name.find('free-food') == -1:
+            await make_new_free_food(after.guild)
 
 @bot.event
 async def on_message(message):
